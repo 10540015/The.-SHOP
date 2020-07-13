@@ -1,0 +1,75 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% include 'navbar.html' %}
+<!---============== END OF NAV BAR ==================-->
+
+<section class="product-details spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-6">
+                <div class="product__details__pic">
+                    <div class="product__details__pic__item">
+                        <img class="product__details__pic__item--large"
+                            src="{{url_for('static',filename='images/' + product.image_1)}}" alt="{{product.name}}">
+                    </div>
+                    <div class="product__details__pic__slider owl-carousel">
+                        <img data-imgbigurl="{{url_for('static',filename='images/' + product.image_1)}}"
+                            src="{{url_for('static',filename='images/' + product.image_1)}}" alt="">
+                        <img data-imgbigurl="{{url_for('static',filename='images/' + product.image_2)}}"
+                            src="{{url_for('static',filename='images/' + product.image_2)}}" alt="">
+                        <img data-imgbigurl="{{url_for('static',filename='images/' + product.image_3)}}"
+                            src="{{url_for('static',filename='images/' + product.image_3)}}" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6">
+                <div class="product__details__text">
+                    <h3>{{product.name}}</h3>
+                    {% if product.discount > 0 %}
+                    <div class="product__details__rating">
+                        <h5>
+                            Discount : 
+                            <span><b>({{product.discount}}%)</b></span>    
+                        </h5>
+                    </div>
+                    {% endif %}
+                    <div class="product__details__price">${{product.price}}</div>
+                    <p>{{product.desc}}</p>
+
+                    <form action="{{url_for('AddCart')}}" method="post">
+                        <input type="hidden" name="product_id" value="{{product.id}}">
+                        <div class="product__details__quantity">
+                            <div class="quantity">
+                                <div class="pro-qty">
+                                    <input type="text" name="quantity" min="1" max="{{product.stock}}" value="1">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="primary-btn">ADD TO CART</button>
+                        {% set colors = product.colors.split(',') %}
+                        <span style="display: inline-block; float:right;">
+                        <select name="colors" id="colors">
+                            {% for color in colors %}
+                            {% set col = color.split(':') %}
+                                <option value="{{col[0]}}">{{col[0] | capitalize }}</option>
+                            {% endfor %}
+                        </select>
+                    </span>
+                    </form>
+
+                    <ul>
+                        <li><b>Availability</b>
+                            {% if product.stock > 0 %}
+                                <span>In Stock</span>
+                            {% else %}
+                                <span>Out of Stock</span>
+                            {% endif %}
+                        </li>
+                        <li><b>Shipping</b> <span>01 day shipping. <samp>Free pickup today</samp></span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

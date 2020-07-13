@@ -1,0 +1,140 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% include 'navbar.html' %}
+<div class="container mt-4">
+    {% include '_messages.html' %}
+    <div class="row">
+        <div class="col-md-12">
+            <br>
+            <div class="shoping__cart__table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sr</th>
+                            <th class="shoping__product">Products</th>
+                            <th>Price</th>
+                            <th>Color</th>
+                            <th>Qty</th>
+                            <th>Discount</th>
+                            <th>Sub Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for key, product in orders.orders.items() %}
+                        {% set discount =(product.discount/100) * product.price|float %}
+                        <tr>
+                            <td class="shoping__cart__price">{{loop.index}}</td>
+                            <td class="shoping__cart__item">
+                                <h5>{{product.name}}</h5>
+                            </td>
+                            <td class="shoping__cart__price">
+                                ${{"%.2f"|format(product.price)}}
+                            </td>
+                            <td align="center" style="width: 10%;" class="shoping__cart__quantity">
+                                {{product.color|capitalize}}
+                            </td>
+                            <td class="shoping__cart__quantity">
+                                {{product.quantity}}
+                            </td>
+                            <td class="shoping__cart__price">
+                                {% if product.discount  %}
+                                {{product.discount}}% (${{"%.2f"|format(discount)}})
+                                {% else %}
+                                --
+                                {% endif %}
+                            </td>
+                            {% set subtotal = product.quantity|int * product.price|float  %}
+                            <td class="shoping__cart__total">
+                                ${{"%.2f"|format(subtotal - discount|round(1,'floor')) }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="shoping__checkout">
+                        <h5>Order Details</h5>
+                        <ul>
+                            <li>Payment Status <span>{{orders.status}}</span></li>
+                            <li>Customer Name <span>{{customer.name}}</span></li>
+                            <li>Customer Email <span>{{customer.email}}</span></li>
+                            <li>Customer Contact <span>{{customer.contact}}</span></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="shoping__checkout">
+                        <h5>Invoice Details</h5>
+                        <ul>
+                            <li>Invoice <span>{{orders.invoice}}</span></li>
+                            <li>Subtotal <span>${{"%.2f"|format(subTotal|round(1,'floor')) }}</span></li>
+                            <li>Tax <span> ${{tax}}</span></li>
+                            <li>Total <span>${{grandTotal}}</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <table class="table table-sm">
+            <tr>
+                <td>
+                    {% if orders.status =='Paid' %}
+                    {% else %}
+                    <div class="checkout__form">
+                        <h4>Card Details</h4>
+                        <form action="{{url_for('authpayment')}}" method="POST">
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12">
+                                    <div class="checkout__input">
+                                        <p>Card Holder Name<span>*</span></p>
+                                        <input type="text" name="card_name" placeholder="Name">
+                                    </div>
+                                    <div class="checkout__input">
+                                        <p>Card Number<span>*</span></p>
+                                        <input type="text" name="card_number" placeholder="Card Number">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <div class="checkout__input">
+                                                <p>Expiry<span>*</span></p>
+                                                <input type="text" name="expiry" placeholder="YYYY-MM">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <div class="checkout__input">
+                                                <p>CVV<span>*</span></p>
+                                                <input type="text" name="cvv" placeholder="CVV">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <input type="hidden" name="amount" value="{{grandTotal}}">
+                                        <input type="hidden" name="invoice" value="{{orders.invoice}}">
+                                        <button style="width: 100%;" type="submit" name="pay" id="pay"
+                                            class="site-btn">Make Payment</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                        {% endif %}
+                </td>
+                <td style="display: none;">
+                    {% if orders.status =='Paid' %}
+                    {% else %}
+                    <form action="{{url_for('payment')}}" method="POST">
+                        <input type="hidden" name="amount" value="{{grandTotal}}">
+                        <input type="hidden" name="invoice" value="{{orders.invoice}}">
+                        <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                            data-key="pk_test_51H3lieBRdZGvpYsWkiRoJcabf0TQpBoJ4BnB0AvuL2U8vMLArlY6ilTJuKU0zNcxjdEg0Yx6v2RBfGn4vKffR2L600YpIEHanV"
+                            data-name="{{customer.name}}" data-description="The. SHOP Purchase"
+                            data-amount="{{grandTotal}}" data-currency="usd"></script>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+{% endblock content %}

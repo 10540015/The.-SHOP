@@ -1,0 +1,105 @@
+{% extends 'layout.html' %}
+{% block content %}
+{% include 'navbar.html' %}
+
+<!-- Shoping Cart Section Begin -->
+<section class="shoping-cart spad">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="shoping__cart__table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="shoping__product">Products</th>
+                                <th>Price</th>
+                                <th>Color</th>
+                                <th>Qty</th>
+                                <th>Discount</th>
+                                <th>Sub Total</th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for key, product in session['Shoppingcart'].items() %}
+                            {% set discount =(product.discount/100) * product.price|float %}
+                            <tr>
+                                <td class="shoping__cart__item">
+                                    <img style="width: 35%;" src="{{url_for('static',filename='images/'+ product.image)}}" alt="{{product.name}}">
+                                    <h5>{{product.name}}</h5>
+                                </td>
+                                <td class="shoping__cart__price">
+                                    ${{"%.2f"|format(product.price)}}
+                                </td>
+                                <form action="{{url_for('updatecart', code=key)}}" method="post">
+                                <td align="center" style="width: 10%;" class="shoping__cart__item">
+                                    {% set colors = product.colors.split(',') %}
+                                    <select name="color" id="color">
+                                        <option value="{{product.color}}" style="display: none;">{{product.color|capitalize}}</option>
+                                        {% for color in colors %}
+                                        {% set col = color.split(':') %}
+                                        <option value="{{col[0]}}">{{col[0] | capitalize }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td class="shoping__cart__quantity">
+                                    <div class="quantity">
+                                        <div class="pro-qty">
+                                            <input type="text" name="quantity" min="1" value="{{product.quantity}}">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="shoping__cart__price">
+                                    {% if product.discount  %}
+                                        {{product.discount}}% (${{"%.2f"|format(discount)}})
+                                    {% else %}
+                                        --
+                                    {% endif %}
+                                </td>
+                                {% set subtotal = product.quantity|int * product.price|float  %}
+                                <td class="shoping__cart__total">
+                                    ${{"%.2f"|format(subtotal - discount|round(1,'floor')) }}
+                                </td>
+                                <td class="shoping__cart__item__close">
+                                    <button type="submit" style="text-decoration: none !important;" class="btn btn-link">
+                                        <span class="icon_refresh"></span>
+                                    </button>
+                                </td>
+                                </form>
+                                <td class="shoping__cart__item__close">
+                                    <a href="{{url_for('deleteitem', id=key)}}"><span class="icon_close"></span></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="shoping__cart__btns">
+                    <a href="{{url_for('clearcart')}}" class="primary-btn cart-btn"><span></span>Clear Cart</a>
+                    <a href="/" class="primary-btn cart-btn cart-btn-right"><span class="icon_loading"></span>CONTINUE SHOPPING</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+            </div>
+            <div class="col-lg-6">
+                <div class="shoping__checkout">
+                    <h5>Cart Total</h5>
+                    <ul>
+                        <li>Subtotal <span>${{"%.2f"|format(subtotal|round(1,'floor')) }}</span></li>
+                        <li>Tax <span> ${{tax}}</span></li>
+                        <li>Total <span>${{grandtotal}}</span></li>
+                    </ul>
+                    <a href="{{url_for('get_order')}}" class="primary-btn">PROCEED TO ORDER</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- Shoping Cart Section End -->
+
+{% endblock content %}
